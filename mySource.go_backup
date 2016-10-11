@@ -1,0 +1,76 @@
+package test
+
+import (
+	"bytes"
+	"math/rand"
+	"strconv"
+	"time"
+
+	"gopkg.in/sensorbee/sensorbee.v0/bql"
+	"gopkg.in/sensorbee/sensorbee.v0/core"
+	"gopkg.in/sensorbee/sensorbee.v0/data"
+)
+
+/*
+type SensorData struct {
+	ID    string
+	value int
+}
+*/
+
+type SensorData struct {
+	interval time.Duration
+}
+
+/*
+func (t SensorData) MakeData(name string, min, max int) error {
+	t.ID = name
+	t.value = rand.Intn(max - min)
+	return nil
+}
+*/
+
+func SimulatedSensor(name string, min, max int) []byte {
+	buf := bytes.NewBuffer(nil) // create empty buffer
+	value := rand.Intn(max - min)
+	buf.WriteString(name + ": " + strconv.Itoa(value))
+	//	value := rand.Intn(max+min) - min
+	//	tuple := map[string]int{name: value}
+	//	tuple := map[string]int{"name": name, "value": value}
+	//	tupleM, _ := json.Marshal(tuple)
+	//	return string(tupleM)v
+	return buf.Bytes()
+}
+
+func (s *SensorData) GenerateStream(ctx *core.Context, w core.Writer) error {
+	for {
+		t := core.NewTuple(data.Map{
+			"temperature": data.Float(rand.Float64() * 30.0),
+			"hymidity":    data.Float(rand.Float64() * 100.0),
+		})
+
+		if err := w.Write(ctx, t); err != nil {
+			return err
+		}
+		time.Sleep(s.interval)
+	}
+}
+
+func CreateMySource(ctx *core.Context, ioParams *bql.IOParams, params data.Map) (core.Source, error) {
+	interval := 1 * time.Microsecond
+	if v, ok := params["interval"]; ok {
+		i, err := data.ToDuration(v)
+		if err != nil {
+			return nil, err
+		}
+		interval = i
+	}
+	return core.ImplementSourceStop(&SourceCreator{
+		interval: interval,
+	}), nil
+
+}
+
+func (s *SensorData) Stop(ctx *core.Context) error {
+	return nil
+}

@@ -2,14 +2,13 @@ package plugin
 
 import (
 	"github.com/bakhi/test"
-	"github.com/bakhi/udsfs"
 	"gopkg.in/sensorbee/sensorbee.v0/bql"
+	"gopkg.in/sensorbee/sensorbee.v0/bql/udf"
 )
 
 func init() {
-	bql.MustRegisterGlobalSourceCreator("lorem", bql.SourceCreatorFunc(udsfs.CreateLoremSource))
-	bql.MustRegisterGlobalSourceCreator("src", bql.SourceCreatorFunc(test.CreateMySource))
+	bql.MustRegisterGlobalSourceCreator("my_src", bql.SourceCreatorFunc(test.CreateMySource))
 	//	bql.MustRegisterGlobalSourceCreator("lorem", bql.SourceCreatorFunc(udsfs.CreateLoremSource))
 	//	udf.MustRegisterGlobalUDSFCreator("word_splitter", udf.MustConvertToUDSFCreator(udsfs.CreateWordSplitter))
-	//	udf.MustRegisterGlobalUDSFCreator("ticker", udf.MustConvertToUDSFCreator(udsfs.CreateTicker))
+	udf.MustRegisterGlobalUDSFCreator("ticker", udf.MustConvertToUDSFCreator(test.CreateTicker))
 }

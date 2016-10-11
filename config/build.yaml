@@ -1,2 +1,2 @@
 plugins:
-  - github.com/bakhi/udsfs/plugin
+  - github.com/bakhi/test/plugin

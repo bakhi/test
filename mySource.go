@@ -2,7 +2,6 @@ package test
 
 import (
 	"bytes"
-	"fmt"
 	"math/rand"
 	"strconv"
 	"time"
@@ -21,7 +20,7 @@ type SourceCreator struct {
 	interval time.Duration
 }
 
-func (t SensorData) MakeData(name string, min, max int) error {
+func (t *SensorData) MakeData(name string, min, max int) error {
 	t.ID = name
 	t.value = rand.Intn(max - min)
 	return nil
@@ -39,22 +38,24 @@ func SimulatedSensor(name string, min, max int) []byte {
 	return buf.Bytes()
 }
 
-func (s SourceCreator) GenerateStream(ctx *core.Context, w core.Writer) error {
+func (s *SourceCreator) GenerateStream(ctx *core.Context, w core.Writer) error {
 	tuple := new(SensorData)
 	for {
 		tuple.MakeData("temperature", 0, 30)
-		t := core.NewTuple(data.Map{tuple.ID: data.Int(tuple.value)})
+		t := core.NewTuple(data.Map{
+			tuple.ID: data.Int(tuple.value),
+		})
 
 		if err := w.Write(ctx, t); err != nil {
 			return err
 		}
-		fmt.Println(tuple)
+		//		fmt.Println(tuple)
 		time.Sleep(s.interval)
 	}
 }
 
-func (s *SourceCreator) CreateMySource(ctx *core.Context, ioParams *bql.IOParams, params data.Map) (core.Source, error) {
-	interval := 1 * time.Microsecond
+func CreateMySource(ctx *core.Context, ioParams *bql.IOParams, params data.Map) (core.Source, error) {
+	interval := 1 * time.Second
 	if v, ok := params["interval"]; ok {
 		i, err := data.ToDuration(v)
 		if err != nil {

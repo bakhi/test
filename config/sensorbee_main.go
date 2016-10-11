@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "github.com/bakhi/udsfs/plugin"
+	_ "github.com/bakhi/test/plugin"
 	_ "gopkg.in/sensorbee/sensorbee.v0/bql/udf/builtin"
 	"gopkg.in/sensorbee/sensorbee.v0/cmd/lib/exp"
 	"gopkg.in/sensorbee/sensorbee.v0/cmd/lib/run"
