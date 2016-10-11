@@ -1,1 +1,4 @@
 CREATE SOURCE src TYPE my_src;
+
+CREATE STREAM src_counts AS
+    SELECT RSTREAM deviceID, count(*) FROM src [RANGE 1 SECONDS] GROUP BY deviceID;

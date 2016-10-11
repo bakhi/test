@@ -3,7 +3,6 @@ package test
 import (
 	"bytes"
 	"math/rand"
-	"strconv"
 	"time"
 
 	"gopkg.in/sensorbee/sensorbee.v0/bql"
@@ -11,9 +10,14 @@ import (
 	"gopkg.in/sensorbee/sensorbee.v0/data"
 )
 
+type Device struct {
+	ID         string
+	sensorData [2]SensorData
+}
+
 type SensorData struct {
 	ID    string
-	value int
+	value float64
 }
 
 type SourceCreator struct {
@@ -22,14 +26,17 @@ type SourceCreator struct {
 
 func (t *SensorData) MakeData(name string, min, max int) error {
 	t.ID = name
-	t.value = rand.Intn(max - min)
+	t.value = rand.Float64() * float64(max-min)
 	return nil
 }
 
 func SimulatedSensor(name string, min, max int) []byte {
 	buf := bytes.NewBuffer(nil) // create empty buffer
-	value := rand.Intn(max - min)
-	buf.WriteString(name + ": " + strconv.Itoa(value))
+	//	value := rand.Intn(max - min)
+	value := rand.Float64() * float64((max - min))
+
+	//buf.WriteString(name + ": " + strconv.Itoa(value))
+	buf.WriteByte(byte(value))
 	//	value := rand.Intn(max+min) - min
 	//	tuple := map[string]int{name: value}
 	//	tuple := map[string]int{"name": name, "value": value}
@@ -38,24 +45,51 @@ func SimulatedSensor(name string, min, max int) []byte {
 	return buf.Bytes()
 }
 
-func (s *SourceCreator) GenerateStream(ctx *core.Context, w core.Writer) error {
-	tuple := new(SensorData)
-	for {
-		tuple.MakeData("temperature", 0, 30)
-		t := core.NewTuple(data.Map{
-			tuple.ID: data.Int(tuple.value),
-		})
+func (d *Device) makeDevice(ID string) {
+	d.ID = ID
+	d.sensorData[0].MakeData("temp", 0, 30)
+	d.sensorData[1].MakeData("humid", 70, 100)
+}
 
+func (s *SourceCreator) GenerateStream(ctx *core.Context, w core.Writer) error {
+	device := new(Device)
+	devName := []string{"dev1", "dev2", "dev3", "dev4", "dev5"}
+	devProb := []float64{0.4, 0.3, 0.15, 0.1, 0.05}
+	pickDev := func() string {
+		r := rand.Float64()
+		for i, p := range devProb {
+			if r < p {
+				return devName[i]
+			}
+			r -= p
+		}
+		return devName[len(devName)-1]
+	}
+
+	device.makeDevice(pickDev())
+
+	temp := &device.sensorData[0]
+	humid := &device.sensorData[1]
+
+	for {
+		device.ID = pickDev()
+		temp.MakeData("temp", 0, 30)
+		humid.MakeData("humid", 0, 100)
+
+		t := core.NewTuple(data.Map{
+			"deviceID": data.String(device.ID),
+			temp.ID:    data.Float(float64(temp.value)),
+			humid.ID:   data.Float(float64(humid.value)),
+		})
 		if err := w.Write(ctx, t); err != nil {
 			return err
 		}
-		//		fmt.Println(tuple)
 		time.Sleep(s.interval)
 	}
 }
 
 func CreateMySource(ctx *core.Context, ioParams *bql.IOParams, params data.Map) (core.Source, error) {
-	interval := 1 * time.Second
+	interval := 1 * time.Millisecond
 	if v, ok := params["interval"]; ok {
 		i, err := data.ToDuration(v)
 		if err != nil {
