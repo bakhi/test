@@ -1,0 +1,6 @@
+topologies:
+  udsfs:
+    bql_file: udsfs.bql
+
+network:
+  listen_on: ":15601"
