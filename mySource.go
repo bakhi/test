@@ -12,6 +12,7 @@ import (
 
 type Device struct {
 	ID         string
+	num        int
 	sensorData [2]SensorData
 }
 
@@ -45,10 +46,10 @@ func SimulatedSensor(name string, min, max int) []byte {
 	return buf.Bytes()
 }
 
-func (d *Device) makeDevice(ID string) {
+func (d *Device) MakeDevice(ID string) {
 	d.ID = ID
-	d.sensorData[0].MakeData("temp", 0, 30)
-	d.sensorData[1].MakeData("humid", 70, 100)
+	//	d.sensorData[0].MakeData("temp", 0, 30)
+	//	d.sensorData[1].MakeData("humid", 70, 100)
 }
 
 func (s *SourceCreator) GenerateStream(ctx *core.Context, w core.Writer) error {
@@ -66,18 +67,21 @@ func (s *SourceCreator) GenerateStream(ctx *core.Context, w core.Writer) error {
 		return devName[len(devName)-1]
 	}
 
-	device.makeDevice(pickDev())
-
+	//	device.MakeDevice(pickDev())
+	device.num = 0
 	temp := &device.sensorData[0]
 	humid := &device.sensorData[1]
 
 	for {
 		device.ID = pickDev()
+		device.num += 1
 		temp.MakeData("temp", 0, 30)
 		humid.MakeData("humid", 0, 100)
 
 		t := core.NewTuple(data.Map{
 			"deviceID": data.String(device.ID),
+			"num":      data.Int(device.num),
+			"time":     data.Int(time.Now().Second()),
 			temp.ID:    data.Float(float64(temp.value)),
 			humid.ID:   data.Float(float64(humid.value)),
 		})
@@ -89,7 +93,7 @@ func (s *SourceCreator) GenerateStream(ctx *core.Context, w core.Writer) error {
 }
 
 func CreateMySource(ctx *core.Context, ioParams *bql.IOParams, params data.Map) (core.Source, error) {
-	interval := 1 * time.Millisecond
+	interval := 1 * time.Nanosecond
 	if v, ok := params["interval"]; ok {
 		i, err := data.ToDuration(v)
 		if err != nil {

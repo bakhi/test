@@ -1,4 +1,7 @@
 CREATE SOURCE src TYPE my_src;
 
-CREATE STREAM src_counts AS
-    SELECT RSTREAM deviceID, count(*) FROM src [RANGE 1 SECONDS] GROUP BY deviceID;
+CREATE STREAM nQ AS
+    SELECT RSTREAM time FROM src [RANGE 1 TUPLES];
+
+CREATE SINK nQ_log TYPE file WITH path = "nQ_log.json";
+INSERT INTO nQ_log from nQ;
