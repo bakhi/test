@@ -1,7 +1,7 @@
 CREATE SOURCE src TYPE my_src;
 
 CREATE STREAM nQ AS
-    SELECT RSTREAM time FROM src [RANGE 1 TUPLES];
+    SELECT RSTREAM now(), time FROM src [RANGE 1 tuples];
 
 CREATE SINK nQ_log TYPE file WITH path = "nQ_log.json";
 INSERT INTO nQ_log from nQ;

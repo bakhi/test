@@ -54,8 +54,10 @@ func (d *Device) MakeDevice(ID string) {
 
 func (s *SourceCreator) GenerateStream(ctx *core.Context, w core.Writer) error {
 	device := new(Device)
-	devName := []string{"dev1", "dev2", "dev3", "dev4", "dev5"}
-	devProb := []float64{0.4, 0.3, 0.15, 0.1, 0.05}
+	//	devName := []string{"dev1", "dev2", "dev3", "dev4", "dev5"}
+	//	devProb := []float64{0.4, 0.3, 0.15, 0.1, 0.05}
+	devName := []string{"dev1", "dev2"}
+	devProb := []float64{0.5, 0.5}
 	pickDev := func() string {
 		r := rand.Float64()
 		for i, p := range devProb {
@@ -81,7 +83,7 @@ func (s *SourceCreator) GenerateStream(ctx *core.Context, w core.Writer) error {
 		t := core.NewTuple(data.Map{
 			"deviceID": data.String(device.ID),
 			"num":      data.Int(device.num),
-			"time":     data.Int(time.Now().Second()),
+			"time":     data.Float(float64(time.Now().Second()) + float64(time.Now().Nanosecond())/1e+9),
 			temp.ID:    data.Float(float64(temp.value)),
 			humid.ID:   data.Float(float64(humid.value)),
 		})
