@@ -95,7 +95,7 @@ func (s *SourceCreator) GenerateStream(ctx *core.Context, w core.Writer) error {
 }
 
 func CreateMySource(ctx *core.Context, ioParams *bql.IOParams, params data.Map) (core.Source, error) {
-	interval := 1 * time.Nanosecond
+	interval := 1 * time.Second
 	if v, ok := params["interval"]; ok {
 		i, err := data.ToDuration(v)
 		if err != nil {

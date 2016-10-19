@@ -11,4 +11,5 @@ func init() {
 	//	bql.MustRegisterGlobalSourceCreator("lorem", bql.SourceCreatorFunc(udsfs.CreateLoremSource))
 	//	udf.MustRegisterGlobalUDSFCreator("word_splitter", udf.MustConvertToUDSFCreator(udsfs.CreateWordSplitter))
 	udf.MustRegisterGlobalUDSFCreator("ticker", udf.MustConvertToUDSFCreator(test.CreateTicker))
+	udf.MustRegisterGlobalUDSFCreator("collector", udf.MustConvertToUDSFCreator(test.CreateCollector))
 }

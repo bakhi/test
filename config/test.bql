@@ -1,7 +1,10 @@
-CREATE SOURCE src TYPE my_src;
+CREATt SOURCE src TYPE my_src with interval = 0.001;
 
 CREATE STREAM nQ AS
     SELECT RSTREAM now(), time FROM src [RANGE 1 tuples];
+
+CREATE STREAM words AS
+    SELECT RSTREAM * from collector(1) [RANGE 100 TUPLES];
 
 CREATE SINK nQ_log TYPE file WITH path = "nQ_log.json";
 INSERT INTO nQ_log from nQ;
