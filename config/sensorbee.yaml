@@ -1,6 +1,7 @@
 topologies:
   test:
-    bql_file: test.bql
+#    bql_file: test.bql
+    bql_file: file.bql
 
 network:
   listen_on: ":15601"

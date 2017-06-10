@@ -1,0 +1,4 @@
+create source src type file with interval = 0.00001, path="./my_source/input.json";
+
+create stream filter as
+	select rstream * from src [range 1 tuples, buffer size 131071] where key > 500;

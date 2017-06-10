@@ -21,8 +21,19 @@ type SensorData struct {
 	value float64
 }
 
+type SensorIntData struct {
+	ID    string
+	value int
+}
+
 type SourceCreator struct {
 	interval time.Duration
+}
+
+func (t *SensorIntData) makeIntData(name string, max int) error {
+	t.ID = name
+	t.value = rand.Intn(max)
+	return nil
 }
 
 func (t *SensorData) MakeData(name string, min, max int) error {
